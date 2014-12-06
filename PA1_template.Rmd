@@ -36,7 +36,7 @@ total_daily_steps <- data.frame(total_daily_steps)
 names(total_daily_steps) <- ("steps")
 
 # Plot histogram
-hist(total_daily_steps$steps, col="blue", breaks=10, main="Daily distribution of the total number of steps taken daily", xlab="Total Number of Steps")
+hist(total_daily_steps$steps, col="blue", breaks=10, main="Daily distribution of the total number of steps taken daily", xlab="Total number of steps")
 ````
 ![plot of chunk Plot_1](figure/Plot_1.png)
 
@@ -47,8 +47,8 @@ mean(daily.steps$steps)
 # Compute the median of the total numbers of steps taken daily
 median(daily.steps$steps)
 ```
-- The mean of total number of steps daily is 10766
-- The median of total number of steps daily is 10765
+- The mean of total number of steps taken daily is 10766
+- The median of total number of steps taken daily is 10765
 
 ## What is the average daily activity pattern?
 
@@ -62,7 +62,7 @@ library(ggplot2)
 qplot(x=interval, y=mean, data = mean_steps,  geom = "line",
       xlab="5-Minute interval",
       ylab="Average number of steps taken, averaged across all days ",
-      main="Average Distribution of steps taken, averaged across all days"
+      main="Average distribution of steps taken, averaged across all days"
 )
 ````
 
