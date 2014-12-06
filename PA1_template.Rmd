@@ -1,10 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
-
+### Reproducible Research Peer Assessment 1
 
 ## Loading and preprocessing the data
 
@@ -118,7 +112,7 @@ daily_61_steps <- sqldf('
 # Plot histogram of the total number of steps taken each day
 hist(daily_61_steps$steps, 
      main="Daily distribution of the number of steps taken daily",
-     breaks=10,
+     breaks=10, col="blue", 
      xlab="Total number of steps taken daily (Including NA value)")
 ```
 ![plot of chunk Plot_3](figure/Plot_3.png)
