@@ -182,7 +182,7 @@ nrow(NA_values)
 ```
 ## [1] 2304
 ```
-- The total number of NA values in the dataset is 2304
+- The total number of NA values in the dataset is 2304.
 
 Strategy for filling in all of the missing values in the dataset
 
