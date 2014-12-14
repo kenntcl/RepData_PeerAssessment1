@@ -2,10 +2,9 @@
 
 ### Loading and preprocessing the data
 
-1. Download, unzip, read and convert to required data
+1. Download, unzip, read and convert to required data.
 
-```r
-## Download and read data
+```{r cache=TRUE}
 if (!file.exists("data.zip")) {
         download.file(url="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip",
                       destfile="data.zip")
@@ -21,38 +20,47 @@ data$date <- as.Date(data$date)
 
 ### What is mean total number of steps taken per day?
 
-```r
-## Remove NA values
+1. Remove the NA values.
+```{r cache=TRUE}
 data_remove_na <- na.omit(data) 
+````
 
-## Aggregate the total numbers of steps
+2. Aggregate the total numbers of steps.
+```{r cache=TRUE}
 total_daily_steps <- rowsum(data_remove_na$steps, format(data_remove_na$date, '%Y-%m-%d')) 
 total_daily_steps <- data.frame(total_daily_steps) 
 names(total_daily_steps) <- ("steps")
+````
 
-## Plot histogram
+3. Plot the required histogram.
+```{r cache=TRUE}
 hist(total_daily_steps$steps, col="blue", breaks=10, main="Daily distribution of the total number of steps taken daily", xlab="Total number of steps")
 ````
-![plot of chunk Plot_1](figure/Plot_1.png)
 
-```r
-## Compute the mean of the total numbers of steps taken daily
-mean(daily.steps$steps)
+4. Compute the mean of the total numbers of steps taken daily.
 
-## Compute the median of the total numbers of steps taken daily
-median(daily.steps$steps)
+```{r cache=TRUE}
+mean(total_daily_steps$steps)
+````
+
+5. Compute the median of the total numbers of steps taken daily.
+```{r cache=TRUE}
+median(total_daily_steps$steps)
 ```
-- The mean of total number of steps taken daily is 10766
-- The median of total number of steps taken daily is 10765
+- The mean of total number of steps taken daily is 10766.
+
+- The median of total number of steps taken daily is 10765.
 
 ## What is the average daily activity pattern?
 
-```r
-## Calculate average steps for each of 5-minute interval during a 24-hour period
+1. Calculate average steps for each of 5-minute interval during a 24-hour period.
+```{r cache=TRUE}
 library(plyr)
 mean_steps <- ddply(data_remove_na,~interval, summarise, mean=mean(steps))
+````
 
-## Plot time series plot of the 5-minute interval and the average number of steps taken, averaged across all days
+2. Plot time series plot of the 5-minute interval and the average number of steps taken, averaged across all days.
+```{r cache=TRUE}
 library(ggplot2)
 qplot(x=interval, y=mean, data = mean_steps,  geom = "line",
       xlab="5-Minute interval",
@@ -61,32 +69,34 @@ qplot(x=interval, y=mean, data = mean_steps,  geom = "line",
 )
 ````
 
-![plot of chunk Plot_2](figure/Plot_2.png)
-
-```r
-## Report the 5-min interval, on average across all the days in the dataset, contains the maximum number of steps
+3. Report the 5-min interval, on average across all the days in the dataset, contains the maximum number of steps.
+```{r cache=TRUE}
 mean_steps[which.max(mean_steps$mean), ]
 ```
-- The 5-minute interval, on average across all days, that contains the maximum number of steps is 835
+
+- The 5-minute interval, on average across all days, that contains the maximum number of steps is 835.
 
 ### Imputing missing values
 
-```r
-## Calculate and report the total number of NA values in the dataset
+1. Calculate and report the total number of NA values in the dataset.
+```{r cache=TRUE}
 library(sqldf)
 NA_values <- sqldf(' 
     SELECT d.*            
     FROM "data" as d
     WHERE d.steps IS NULL 
     ORDER BY d.date, d.interval ')
+````
 
-## Return the total number of NA values in the dataset
+2. Return the total number of NA values in the dataset
+```{r cache=TRUE}
 nrow(NA_values)
 ```
 - The total number of NA values in the dataset is 2304
 
-```r
-## Strategy for filling in all of the missing values in the dataset. To fill in the missing values, mean steps for a five-minute interval for the entire dataset is used.
+3. Strategy for filling in all of the missing values in the dataset
+
+```{r cache=TRUE}
 value1 <- sqldf('  
     SELECT d.*, i.mean
     FROM "mean_steps" as i
@@ -109,24 +119,29 @@ daily_61_steps <- sqldf('
     SELECT date, value1_total_steps_by_date as "steps"
     FROM "value1_total_steps_by_date"
     ORDER BY date')
+````
 
-## Plot histogram of the total number of steps taken each day
+4. Plot histogram of the total number of steps taken each day
+
+```{r cache=TRUE}
 hist(daily_61_steps$steps, 
      main="Daily distribution of the number of steps taken daily",
      breaks=10, col="blue", 
      xlab="Total number of steps taken daily (Including NA value)")
 ```
-![plot of chunk Plot_3](figure/Plot_3.png)
 
-```r
-## Compute the mean of the total numbers of steps taken daily (Including NA values)
+5. Compute the mean of the total numbers of steps taken daily (Including NA values)
+```{r cache=TRUE}
 mean(value1_total_steps/NROW(value1_total_steps_by_date))
+````
 
-## Compute the median of the total numbers of steps taken daily (Including NA values)
+6. Compute the median of the total numbers of steps taken daily (Including NA values)
+```{r cache=TRUE}
 median(value1_total_steps_by_date$value1_total_steps_by_date)
 ```
-- The mean of total number steps per day is 10766
-- The median of total number steps per day is 10766
+- The mean of total number steps per day is 10766.
+
+- The median of total number steps per day is 10766.
 
 Observations:
 
@@ -136,8 +151,8 @@ Observations:
 
 ### Are there differences in activity patterns between weekdays and weekends?
 
-```r
-## Create a factor variable weektime with two levels (weekday, weekend)
+1. Create a factor variable weektime with two levels (weekday, weekend)
+```{r cache=TRUE}
 value1$weektime <- as.factor(ifelse(weekdays(value1$date) %in% c("Saturday","Sunday"),"weekend", "weekday"))
 
 value2 <- sqldf('   
@@ -145,8 +160,10 @@ value2 <- sqldf('
     FROM value1
     GROUP BY weektime, interval
     ORDER BY interval ')
+````
 
-## Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days
+2. Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days
+````{r cache=TRUE}
 library("lattice")
 plot <- xyplot(mean.steps ~ interval | factor(weektime), data=value2, 
             type = 'l',
@@ -155,7 +172,7 @@ plot <- xyplot(mean.steps ~ interval | factor(weektime), data=value2,
             ylab="Average number of steps taken")
 print (plot)
 ```
-![plot of chunk Plot_4](figure/Plot_4.png)
 
 Observations:
+
 - Are there differences in activity patterns between weekdays and weekends? Yes. The plot indicates that the person moves around more (or more active) during the weekend days.
