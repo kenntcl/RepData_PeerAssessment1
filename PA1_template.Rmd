@@ -1,44 +1,45 @@
-# Reproducible Research Peer Assessment 1 
+## Title: Reproducible Research Peer Assessment 1 
 
-## Loading and preprocessing the data
+### Loading and preprocessing the data
 
-Download, unzip, read and convert to required data
+1. Download, unzip, read and convert to required data
 
 ```r
+## Download and read data
 if (!file.exists("data.zip")) {
         download.file(url="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip",
                       destfile="data.zip")
         unzip("data.zip")
 }
 
-# Read data from csv file
+## Read data from csv file
 data <- read.csv("activity.csv")
 
-# Convert date to date data type
+## Convert date to date data type
 data$date <- as.Date(data$date)
 ```
 
-## What is mean total number of steps taken per day?
+### What is mean total number of steps taken per day?
 
 ```r
-# Remove NA values
+## Remove NA values
 data_remove_na <- na.omit(data) 
 
-# Aggregate the total numbers of steps
+## Aggregate the total numbers of steps
 total_daily_steps <- rowsum(data_remove_na$steps, format(data_remove_na$date, '%Y-%m-%d')) 
 total_daily_steps <- data.frame(total_daily_steps) 
 names(total_daily_steps) <- ("steps")
 
-# Plot histogram
+## Plot histogram
 hist(total_daily_steps$steps, col="blue", breaks=10, main="Daily distribution of the total number of steps taken daily", xlab="Total number of steps")
 ````
 ![plot of chunk Plot_1](figure/Plot_1.png)
 
 ```r
-# Compute the mean of the total numbers of steps taken daily
+## Compute the mean of the total numbers of steps taken daily
 mean(daily.steps$steps)
 
-# Compute the median of the total numbers of steps taken daily
+## Compute the median of the total numbers of steps taken daily
 median(daily.steps$steps)
 ```
 - The mean of total number of steps taken daily is 10766
@@ -47,11 +48,11 @@ median(daily.steps$steps)
 ## What is the average daily activity pattern?
 
 ```r
-# Calculate average steps for each of 5-minute interval during a 24-hour period
+## Calculate average steps for each of 5-minute interval during a 24-hour period
 library(plyr)
 mean_steps <- ddply(data_remove_na,~interval, summarise, mean=mean(steps))
 
-# Plot time series plot of the 5-minute interval and the average number of steps taken, averaged across all days
+## Plot time series plot of the 5-minute interval and the average number of steps taken, averaged across all days
 library(ggplot2)
 qplot(x=interval, y=mean, data = mean_steps,  geom = "line",
       xlab="5-Minute interval",
@@ -63,15 +64,15 @@ qplot(x=interval, y=mean, data = mean_steps,  geom = "line",
 ![plot of chunk Plot_2](figure/Plot_2.png)
 
 ```r
-# Report the 5-min interval, on average across all the days in the dataset, contains the maximum number of steps
+## Report the 5-min interval, on average across all the days in the dataset, contains the maximum number of steps
 mean_steps[which.max(mean_steps$mean), ]
 ```
 - The 5-minute interval, on average across all days, that contains the maximum number of steps is 835
 
-## Imputing missing values
+### Imputing missing values
 
 ```r
-# Calculate and report the total number of NA values in the dataset
+## Calculate and report the total number of NA values in the dataset
 library(sqldf)
 NA_values <- sqldf(' 
     SELECT d.*            
@@ -79,13 +80,13 @@ NA_values <- sqldf('
     WHERE d.steps IS NULL 
     ORDER BY d.date, d.interval ')
 
-# Return the total number of NA values in the dataset
+## Return the total number of NA values in the dataset
 nrow(NA_values)
 ```
 - The total number of NA values in the dataset is 2304
 
 ```r
-# Strategy for filling in all of the missing values in the dataset
+## Strategy for filling in all of the missing values in the dataset. To fill in the missing values, mean steps for a five-minute interval for the entire dataset is used.
 value1 <- sqldf('  
     SELECT d.*, i.mean
     FROM "mean_steps" as i
@@ -109,7 +110,7 @@ daily_61_steps <- sqldf('
     FROM "value1_total_steps_by_date"
     ORDER BY date')
 
-# Plot histogram of the total number of steps taken each day
+## Plot histogram of the total number of steps taken each day
 hist(daily_61_steps$steps, 
      main="Daily distribution of the number of steps taken daily",
      breaks=10, col="blue", 
@@ -118,10 +119,10 @@ hist(daily_61_steps$steps,
 ![plot of chunk Plot_3](figure/Plot_3.png)
 
 ```r
-# Compute the mean of the total numbers of steps taken daily (Including NA values)
+## Compute the mean of the total numbers of steps taken daily (Including NA values)
 mean(value1_total_steps/NROW(value1_total_steps_by_date))
 
-# Compute the median of the total numbers of steps taken daily (Including NA values)
+## Compute the median of the total numbers of steps taken daily (Including NA values)
 median(value1_total_steps_by_date$value1_total_steps_by_date)
 ```
 - The mean of total number steps per day is 10766
@@ -131,12 +132,12 @@ Observations:
 
 - Do these values (mean and median) differ from the estimates from the first part of the assignment? No. The estimates are quite similar.
 
-- What is the impact of imputing missing data on the estimates of the total daily number of steps? The shape of the histogram remains the same as the histogram from removed NA values. However, the frequency counts increased as expected. In this case, it seems that the data imputation strategy should work for the downstream data analysis and modeling.
+- What is the impact of imputing missing data on the estimates of the total daily number of steps? The shape of the histogram remains the same as the histogram from removed NA values. However, the frequency counts increased as expected i.e. Imputing the missing data has increased the average number of steps. In this case, it seems that the data imputation strategy should work for the downstream data analysis and modeling.
 
-## Are there differences in activity patterns between weekdays and weekends?
+### Are there differences in activity patterns between weekdays and weekends?
 
 ```r
-# Create a factor variable weektime with two levels (weekday, weekend)
+## Create a factor variable weektime with two levels (weekday, weekend)
 value1$weektime <- as.factor(ifelse(weekdays(value1$date) %in% c("Saturday","Sunday"),"weekend", "weekday"))
 
 value2 <- sqldf('   
@@ -145,7 +146,7 @@ value2 <- sqldf('
     GROUP BY weektime, interval
     ORDER BY interval ')
 
-# Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days
+## Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days
 library("lattice")
 plot <- xyplot(mean.steps ~ interval | factor(weektime), data=value2, 
             type = 'l',
