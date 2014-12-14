@@ -2,10 +2,11 @@
 
 ### Loading and preprocessing the data
 
-1. Download, unzip, read and convert to required data.
+Download, unzip, read and convert to required data.
 
 
 ```r
+## Download and unzip the data
 if (!file.exists("data.zip")) {
         download.file(url="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip",
                       destfile="data.zip")
@@ -21,13 +22,13 @@ data$date <- as.Date(data$date)
 
 ### What is mean total number of steps taken per day?
 
-1. Remove the NA values.
+Remove the NA values.
 
 ```r
 data_remove_na <- na.omit(data) 
 ```
 
-2. Aggregate the total numbers of steps.
+Aggregate the total numbers of steps.
 
 ```r
 total_daily_steps <- rowsum(data_remove_na$steps, format(data_remove_na$date, '%Y-%m-%d')) 
@@ -35,7 +36,7 @@ total_daily_steps <- data.frame(total_daily_steps)
 names(total_daily_steps) <- ("steps")
 ```
 
-3. Plot the required histogram.
+Plot the required histogram.
 
 ```r
 hist(total_daily_steps$steps, col="blue", breaks=10, main="Daily distribution of the total number of steps taken daily", xlab="Total number of steps")
@@ -43,7 +44,7 @@ hist(total_daily_steps$steps, col="blue", breaks=10, main="Daily distribution of
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
 
-4. Compute the mean of the total numbers of steps taken daily.
+Compute the mean of the total numbers of steps taken daily.
 
 
 ```r
@@ -54,7 +55,7 @@ mean(total_daily_steps$steps)
 ## [1] 10766.19
 ```
 
-5. Compute the median of the total numbers of steps taken daily.
+Compute the median of the total numbers of steps taken daily.
 
 ```r
 median(total_daily_steps$steps)
@@ -69,7 +70,7 @@ median(total_daily_steps$steps)
 
 ## What is the average daily activity pattern?
 
-1. Calculate average steps for each of 5-minute interval during a 24-hour period.
+Calculate average steps for each of 5-minute interval during a 24-hour period.
 
 ```r
 library(plyr)
@@ -83,7 +84,7 @@ library(plyr)
 mean_steps <- ddply(data_remove_na,~interval, summarise, mean=mean(steps))
 ```
 
-2. Plot time series plot of the 5-minute interval and the average number of steps taken, averaged across all days.
+Plot time series plot of the 5-minute interval and the average number of steps taken, averaged across all days.
 
 ```r
 library(ggplot2)
@@ -103,7 +104,7 @@ qplot(x=interval, y=mean, data = mean_steps,  geom = "line",
 
 ![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png) 
 
-3. Report the 5-min interval, on average across all the days in the dataset, contains the maximum number of steps.
+Report the 5-min interval, on average across all the days in the dataset, contains the maximum number of steps.
 
 ```r
 mean_steps[which.max(mean_steps$mean), ]
@@ -118,7 +119,7 @@ mean_steps[which.max(mean_steps$mean), ]
 
 ### Imputing missing values
 
-1. Calculate and report the total number of NA values in the dataset.
+Calculate and report the total number of NA values in the dataset.
 
 ```r
 library(sqldf)
@@ -172,7 +173,7 @@ NA_values <- sqldf('
 ## Loading required package: tcltk
 ```
 
-2. Return the total number of NA values in the dataset
+Return the total number of NA values in the dataset
 
 ```r
 nrow(NA_values)
@@ -183,7 +184,7 @@ nrow(NA_values)
 ```
 - The total number of NA values in the dataset is 2304
 
-3. Strategy for filling in all of the missing values in the dataset
+Strategy for filling in all of the missing values in the dataset
 
 
 ```r
@@ -211,7 +212,7 @@ daily_61_steps <- sqldf('
     ORDER BY date')
 ```
 
-4. Plot histogram of the total number of steps taken each day
+Plot histogram of the total number of steps taken each day
 
 
 ```r
@@ -223,7 +224,7 @@ hist(daily_61_steps$steps,
 
 ![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png) 
 
-5. Compute the mean of the total numbers of steps taken daily (Including NA values)
+Compute the mean of the total numbers of steps taken daily (Including NA values)
 
 ```r
 mean(value1_total_steps/NROW(value1_total_steps_by_date))
@@ -233,7 +234,7 @@ mean(value1_total_steps/NROW(value1_total_steps_by_date))
 ## [1] 10766.18
 ```
 
-6. Compute the median of the total numbers of steps taken daily (Including NA values)
+Compute the median of the total numbers of steps taken daily (Including NA values)
 
 ```r
 median(value1_total_steps_by_date$value1_total_steps_by_date)
@@ -254,7 +255,7 @@ Observations:
 
 ### Are there differences in activity patterns between weekdays and weekends?
 
-1. Create a factor variable weektime with two levels (weekday, weekend)
+Create a factor variable weektime with two levels (weekday, weekend)
 
 ```r
 value1$weektime <- as.factor(ifelse(weekdays(value1$date) %in% c("Saturday","Sunday"),"weekend", "weekday"))
@@ -266,7 +267,7 @@ value2 <- sqldf('
     ORDER BY interval ')
 ```
 
-2. Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days
+Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days
 
 ```r
 library("lattice")
